@@ -11,7 +11,7 @@ import UIKit
 public protocol RAReorderableLayoutDelegate: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, willMoveTo toIndexPath: IndexPath)
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, didMoveTo toIndexPath: IndexPath)
-    func collectionView(_ collectionView: UICollectionView, allowMoveAt indexPath: IndexPath) -> Bool
+    func collectionView(_ collectionView: UICollectionView, allowMoveAt indexPath: IndexPath, atLocation location: CGPoint) -> Bool
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, canMoveTo: IndexPath) -> Bool
     
     func collectionView(_ collectionView: UICollectionView, collectionView layout: RAReorderableLayout, willBeginDraggingItemAt indexPath: IndexPath)
@@ -48,7 +48,7 @@ public extension RAReorderableLayoutDataSource {
 public extension RAReorderableLayoutDelegate {
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, willMoveTo toIndexPath: IndexPath) {}
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, didMoveTo toIndexPath: IndexPath) {}
-    func collectionView(_ collectionView: UICollectionView, allowMoveAt indexPath: IndexPath) -> Bool {
+    func collectionView(_ collectionView: UICollectionView, allowMoveAt indexPath: IndexPath, atLocation location: CGPoint) -> Bool {
         return true
     }
     func collectionView(_ collectionView: UICollectionView, at: IndexPath, canMoveTo: IndexPath) -> Bool {
@@ -356,6 +356,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
         guard longPress == nil && panGesture == nil else {return }
         
         longPress = UILongPressGestureRecognizer(target: self, action: #selector(RAReorderableLayout.handleLongPress(_:)))
+        longPress?.minimumPressDuration = 0.1
         panGesture = UIPanGestureRecognizer(target: self, action: #selector(RAReorderableLayout.handlePanGesture(_:)))
         longPress?.delegate = self
         panGesture?.delegate = self
@@ -463,7 +464,7 @@ open class RAReorderableLayout: UICollectionViewFlowLayout, UIGestureRecognizerD
         // allow move item
         let location = gestureRecognizer.location(in: collectionView)
         if let indexPath = collectionView?.indexPathForItem(at: location) ,
-            delegate?.collectionView(self.collectionView!, allowMoveAt: indexPath) == false {
+            delegate?.collectionView(self.collectionView!, allowMoveAt: indexPath, atLocation: location) == false {
             return false
         }
         
